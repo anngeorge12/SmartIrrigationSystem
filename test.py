@@ -1,6 +1,7 @@
-from satellite_fetch import get_satellite_data
+import joblib
 
-data = get_satellite_data()
+model = joblib.load("irrigation_model_aftershap.pkl")
+scaler = joblib.load("scaler_aftershap.pkl")
 
-print("Satellite Data:")
-print(data)
+print("Model loaded successfully")
+print(type(model))
