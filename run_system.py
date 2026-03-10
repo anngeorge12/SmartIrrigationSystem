@@ -1,3 +1,6 @@
+
+DEMO_MODE = False  # Set to True to simulate drought conditions for testing
+
 from weather_fetch import get_weather
 from satellite_fetch import get_satellite_data
 from feature_engineering import build_features
@@ -12,6 +15,30 @@ satellite = get_satellite_data()
 
 print("Building features...")
 features = build_features(weather, satellite)
+# ======================
+# DEMO MODE SIMULATION
+# ======================
+
+if DEMO_MODE:
+    print("\nDemo mode enabled: simulating drought conditions")
+
+    features["dryness_index"] = 60
+    features["humidity"] = 15
+
+    # simulate dry soil
+    features["swvl1"] = 0.05
+    features["swvl2"] = 0.08
+    features["soil_avg"] = 0.065
+    features["soil_lag1"] = 0.065
+
+    # simulate stressed vegetation
+    features["NDVI"] = 0.10
+    features["NDWI"] = -0.20
+
+    # no rainfall
+    features["rain_mm"] = 0
+    features["rainfall"] = 0
+    features["rain_3d"] = 0
 
 print("Current features:")
 for k,v in features.items():
