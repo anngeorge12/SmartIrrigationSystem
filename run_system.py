@@ -1,5 +1,5 @@
 
-DEMO_MODE = False  # Set to True to simulate drought conditions for testing
+DEMO_MODE = True  # Set to True to simulate drought conditions for testing
 
 from weather_fetch import get_weather
 from satellite_fetch import get_satellite_data
