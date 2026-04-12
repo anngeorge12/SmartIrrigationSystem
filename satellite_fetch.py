@@ -10,11 +10,10 @@ def initialize_ee():
         service_account = os.environ.get("EE_SERVICE_ACCOUNT")
         key_json = os.environ.get("EE_PRIVATE_KEY")
 
-        # 🔐 CLOUD MODE (Render)
         if service_account and key_json:
             key_dict = json.loads(key_json)
 
-            # write JSON to temporary file
+            # write JSON to temp file
             with tempfile.NamedTemporaryFile(mode="w", delete=False) as f:
                 json.dump(key_dict, f)
                 key_path = f.name
@@ -26,7 +25,6 @@ def initialize_ee():
 
             print("✅ Earth Engine initialized (Service Account)")
 
-        # 💻 LOCAL MODE (VS Code)
         else:
             ee.Initialize(project='samrtirrigation-489614')
             print("⚠️ Using local Earth Engine authentication")
@@ -41,10 +39,12 @@ initialize_ee()
 
 def get_satellite_data():
     try:
-        # 📍 Farm location (Bangalore example)
+        print("🚀 Satellite function called")  # 🔥 CONFIRM FUNCTION RUNS
+
+        # 📍 Location
         point = ee.Geometry.Point([77.6, 13.0])
 
-        # 📅 Last 30 days
+        # 📅 Date range
         end_date = datetime.today()
         start_date = end_date - timedelta(days=30)
 
@@ -59,9 +59,9 @@ def get_satellite_data():
             .first()
         )
 
-        # 🚨 Safety check
+        # 🚨 Check dataset
         if dataset is None:
-            print("⚠️ No satellite data found → using fallback")
+            print("⚠️ No dataset found → fallback used")
             return {"NDVI": 0.2, "NDWI": -0.1}
 
         # 🌿 NDVI
@@ -82,16 +82,21 @@ def get_satellite_data():
             scale=10
         ).getInfo()
 
-        result = {
-            "NDVI": list(ndvi_value.values())[0] if ndvi_value else 0.2,
-            "NDWI": list(ndwi_value.values())[0] if ndwi_value else -0.1
+        # 🚨 Check values
+        if not ndvi_value or not ndwi_value:
+            print("⚠️ Empty satellite values → fallback used")
+            return {"NDVI": 0.2, "NDWI": -0.1}
+
+        ndvi_val = list(ndvi_value.values())[0]
+        ndwi_val = list(ndwi_value.values())[0]
+
+        print("🌿 NDVI VALUE:", ndvi_val)
+        print("💧 NDWI VALUE:", ndwi_val)
+
+        return {
+            "NDVI": ndvi_val,
+            "NDWI": ndwi_val
         }
-
-        # 🔍 Debug print
-        print("NDVI:", result["NDVI"])
-        print("NDWI:", result["NDWI"])
-
-        return result
 
     except Exception as e:
         print("❌ Satellite fetch failed:", e)
