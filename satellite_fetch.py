@@ -1,8 +1,35 @@
 import ee
+import os
+import json
 from datetime import datetime, timedelta
 
-# initialize earth engine
-ee.Initialize(project='samrtirrigation-489614')
+
+def initialize_ee():
+    try:
+        service_account = os.environ.get("EE_SERVICE_ACCOUNT")
+        key_json = os.environ.get("EE_PRIVATE_KEY")
+
+        if service_account and key_json:
+            key_dict = json.loads(key_json)
+
+            credentials = ee.ServiceAccountCredentials(
+                service_account, key_dict
+            )
+            ee.Initialize(credentials)
+
+            print("✅ Earth Engine initialized (Service Account)")
+
+        else:
+            # fallback for local
+            ee.Initialize(project='samrtirrigation-489614')
+            print("⚠️ Using local Earth Engine login")
+
+    except Exception as e:
+        print("❌ EE Initialization failed:", e)
+
+
+# initialize once
+initialize_ee()
 
 
 def get_satellite_data():
@@ -10,7 +37,7 @@ def get_satellite_data():
     # farm location (Bangalore example)
     point = ee.Geometry.Point([77.6, 13.0])
 
-    # last 30 days range
+    # last 30 days
     end_date = datetime.today()
     start_date = end_date - timedelta(days=30)
 
@@ -21,6 +48,10 @@ def get_satellite_data():
         .sort("CLOUDY_PIXEL_PERCENTAGE")
         .first()
     )
+
+    # safety check
+    if dataset is None:
+        return {"NDVI": 0.2, "NDWI": -0.1}
 
     # NDVI
     ndvi = dataset.normalizedDifference(['B8', 'B4']).rename('NDVI')
@@ -41,8 +72,8 @@ def get_satellite_data():
     ).getInfo()
 
     result = {
-        "NDVI": list(ndvi_value.values())[0],
-        "NDWI": list(ndwi_value.values())[0]
+        "NDVI": list(ndvi_value.values())[0] if ndvi_value else 0.2,
+        "NDWI": list(ndwi_value.values())[0] if ndwi_value else -0.1
     }
 
     return result
