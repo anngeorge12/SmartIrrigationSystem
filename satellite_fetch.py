@@ -2,7 +2,11 @@ import ee
 import os
 import json
 import tempfile
+import logging
 from datetime import datetime, timedelta
+
+# ✅ setup logging (important for Render)
+logging.basicConfig(level=logging.INFO)
 
 
 def initialize_ee():
@@ -23,14 +27,14 @@ def initialize_ee():
             )
             ee.Initialize(credentials)
 
-            print("✅ Earth Engine initialized (Service Account)")
+            logging.info("✅ Earth Engine initialized (Service Account)")
 
         else:
             ee.Initialize(project='samrtirrigation-489614')
-            print("⚠️ Using local Earth Engine authentication")
+            logging.warning("⚠️ Using local Earth Engine authentication")
 
     except Exception as e:
-        print("❌ EE Initialization failed:", e)
+        logging.error(f"❌ EE Initialization failed: {e}")
 
 
 # initialize once
@@ -39,12 +43,12 @@ initialize_ee()
 
 def get_satellite_data():
     try:
-        print("🚀 Satellite function called")  # 🔥 CONFIRM FUNCTION RUNS
+        logging.info("🚀 Satellite function started")
 
-        # 📍 Location
+        # 📍 Location (Bangalore)
         point = ee.Geometry.Point([77.6, 13.0])
 
-        # 📅 Date range
+        # 📅 Date range (last 30 days)
         end_date = datetime.today()
         start_date = end_date - timedelta(days=30)
 
@@ -61,7 +65,7 @@ def get_satellite_data():
 
         # 🚨 Check dataset
         if dataset is None:
-            print("⚠️ No dataset found → fallback used")
+            logging.warning("⚠️ No dataset found → fallback used")
             return {"NDVI": 0.2, "NDWI": -0.1}
 
         # 🌿 NDVI
@@ -82,16 +86,16 @@ def get_satellite_data():
             scale=10
         ).getInfo()
 
-        # 🚨 Check values
+        # 🚨 Validate values
         if not ndvi_value or not ndwi_value:
-            print("⚠️ Empty satellite values → fallback used")
+            logging.warning("⚠️ Empty satellite values → fallback used")
             return {"NDVI": 0.2, "NDWI": -0.1}
 
         ndvi_val = list(ndvi_value.values())[0]
         ndwi_val = list(ndwi_value.values())[0]
 
-        print("🌿 NDVI VALUE:", ndvi_val)
-        print("💧 NDWI VALUE:", ndwi_val)
+        logging.info(f"🌿 NDVI VALUE: {ndvi_val}")
+        logging.info(f"💧 NDWI VALUE: {ndwi_val}")
 
         return {
             "NDVI": ndvi_val,
@@ -99,5 +103,5 @@ def get_satellite_data():
         }
 
     except Exception as e:
-        print("❌ Satellite fetch failed:", e)
+        logging.error(f"❌ Satellite fetch failed: {e}")
         return {"NDVI": 0.2, "NDWI": -0.1}
