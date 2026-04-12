@@ -1,4 +1,4 @@
-DEMO_MODE = True  
+DEMO_MODE = False
 
 from weather_fetch import get_weather
 from satellite_fetch import get_satellite_data

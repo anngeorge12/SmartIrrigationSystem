@@ -2,11 +2,16 @@ import pandas as pd
 from datetime import datetime
 import os
 
-
-def build_features(weather, satellite):
+def build_features(weather, satellite, iot=None):
 
     temp = weather["temp_c"]
+    humidity = weather["humidity"]
     rainfall = weather["rain_mm"]
+
+# Override with IoT if available
+    if iot:
+        temp = iot.get("temp", temp)
+        humidity = iot.get("hum", humidity)
 
     features = {}
 
@@ -16,7 +21,7 @@ def build_features(weather, satellite):
     features["rain_mm"] = rainfall
     features["rainfall"] = rainfall
     features["wind_speed"] = weather["wind_speed"]
-    features["humidity"] = weather["humidity"]
+    features["humidity"] = humidity
 
     # satellite features
     features["NDVI"] = satellite["NDVI"]
@@ -28,8 +33,11 @@ def build_features(weather, satellite):
     features["heat_stress"] = 1 if temp > 35 else 0
 
     # soil moisture conversion
-    ndwi = satellite["NDWI"]
-    soil_moisture = (ndwi + 1) / 2
+    if iot and "soil" in iot:
+        soil_moisture = 1- iot["soil"] / 4095   # normalize ESP32 value
+    else:
+        ndwi = satellite["NDWI"]
+        soil_moisture = (ndwi + 1) / 2
 
     features["swvl1"] = soil_moisture * 0.6
     features["swvl2"] = soil_moisture * 0.8
