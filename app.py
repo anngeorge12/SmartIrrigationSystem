@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+import os
 
 from feature_engineering import build_features
 from  predict_irrigation import predict_irrigation
@@ -73,4 +74,5 @@ def predict():
 # Run server
 # -------------------------
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    #app.run(host="0.0.0.0", port=5000)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
