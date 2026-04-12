@@ -10,7 +10,7 @@ logging.basicConfig(level=logging.INFO)
 try:
     from tensorflow.keras.models import load_model
 
-    model = load_model("model_fixed.keras")
+    model = load_model("irrigation_lstm_model.h5")
     MODEL_AVAILABLE = True
 
     logging.info("✅ LSTM model loaded successfully")

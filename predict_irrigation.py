@@ -5,8 +5,8 @@ import pandas as pd
 # LOAD MODEL + SCALER
 # ======================
 
-model = joblib.load("model_fixed.pkl")
-scaler = joblib.load("scaler_fixed.pkl")
+model = joblib.load("irrigation_model_aftershap.pkl")
+scaler = joblib.load("scaler_aftershap.pkl")
 
 # ======================
 # FEATURE ORDER
