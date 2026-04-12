@@ -3,7 +3,7 @@ pandas
 numpy==2.4.2
 scikit-learn==1.8.0
 tensorflow==2.13.0
-joblib
+joblib==1.5.3
 requests
 earthengine-api
 keras==2.13.1
