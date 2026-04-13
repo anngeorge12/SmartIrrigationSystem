@@ -35,6 +35,7 @@ def build_features(weather, satellite, iot=None):
     # soil moisture conversion
     if iot and "soil" in iot:
         soil_moisture = 1- iot["soil"] / 4095   # normalize ESP32 value
+        soil_moisture = max(0.05, min(0.6, soil_moisture))
     else:
         ndwi = satellite["NDWI"]
         soil_moisture = (ndwi + 1) / 2
